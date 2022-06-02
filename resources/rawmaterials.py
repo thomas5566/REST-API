@@ -1,4 +1,4 @@
-from flask_restful import Resource, reqparse
+from flask_restful import reqparse
 from flask_jwt import jwt_required
 from models.rawmaterials import RawmaterialModel
 
@@ -143,15 +143,13 @@ class Rawmaterial(Resource):
         return {"message": "Inserting rawmaterial success!", 
                 "Rawmaterial": rawmaterial.json()}, 201
 
-    
     def delete(self, control_no):
         rawmaterial = RawmaterialModel.find_by_name(control_no)
         if rawmaterial:
             rawmaterial.delete_from_db()
-        
+
         return {'message': 'Rawmaterial deleted'}
 
-    
     def put(self, control_no):
         data = Rawmaterial.parser.parse_args()
 

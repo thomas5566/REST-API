@@ -11,6 +11,7 @@ from resources.store import Store, StoreList
 from resources.rawmaterials import Rawmaterial, RawmaterialList
 from resources.controlnumber import ControlNumber, ControlNumberList, GetRawmaterialsListbyControlNumber
 from resources.device import AddDevice
+from resources.carbonnews import CarbonNews, CarbonNewslList, FindCrabonNewsByHashTag
 
 from flask_cors import CORS
 from flask_restful_swagger_2 import Api
@@ -59,6 +60,9 @@ api.add_resource(ControlNumberList, '/controlnumbers')
 api.add_resource(GetRawmaterialsListbyControlNumber, '/getrawbycontrolno/<string:control_number>')
 api.add_resource(UserRegister, '/register')
 api.add_resource(AddDevice, '/user/add-device')
+api.add_resource(CarbonNews, '/carbonnews')
+api.add_resource(FindCrabonNewsByHashTag, '/carbonnews/hashtag/<string:hashtag>')
+api.add_resource(CarbonNewslList, '/carbonnews-lists')
 
 db.init_app(app)
 
@@ -69,6 +73,4 @@ def index():
     </head>"""
 
 if __name__ == '__main__':
-    # from common.ma import ma
-    # ma.init_app(app)
-    app.run()
+    app.run(debug=True, host='0.0.0.0')

@@ -1,0 +1,68 @@
+version: "3.7"
+
+services: 
+  postgres: 
+    container_name: postgres_container
+    image: postgres
+    restart: always
+    hostname: postgres
+    expose: # 僅能在此 docker-compose 內的 container 們使用
+      - "5566"
+    ports: # Ports: 能連到主機的這些 port 都能夠使用
+      - "5566:5432"
+    networks:
+      - apinet
+    environment:
+      POSTGRES_DB: flasksql
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 5566
+    volumes:
+      - postgres-volume:/data/db
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - "5555:80"
+    networks:
+      - apinet
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: 5566
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    restart: unless-stopped
+
+  nginx:
+    container_name: nginx_container
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    ports:
+      # 將local 8087 port 指向 container的 80 port
+      - "8087:80"
+    networks:
+      - apinet
+
+  api:
+    container_name: flask_container
+    build:
+      context: .
+      dockerfile: Dockerfile_flask
+    expose:
+      - "8088"
+    environment:
+      POSTGRES_URL: postgresql://postgres:5566@postgres/flasksql
+    networks:
+      - apinet
+    depends_on:
+      - postgres
+
+networks:
+  apinet:
+volumes:
+  postgres-volume:
+  pgadmin:

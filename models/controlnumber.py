@@ -6,8 +6,9 @@ class ControlNumberModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     control_number = db.Column(db.String(80))
-    
-    rawmaterials = db.relationship('RawmaterialModel', lazy='dynamic') # List of the items ex. one store have many items
+
+    # List of the items ex. one store have many items
+    rawmaterials = db.relationship('RawmaterialModel', lazy='dynamic')
 
     def __init__(self, control_number):
         self.control_number = control_number
