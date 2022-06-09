@@ -1,0 +1,59 @@
+Insert an Rawmaterial
+---
+tags:
+  - Rawmaterial
+parameters:
+  - name: body
+    description: The body should contain rawmaterial data
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "control_no"
+        - "check_year"
+        - "area_name"
+        - "process_no"
+        - "process_code"
+      properties:
+        control_no:
+          type: "int64"
+          example: 11880755
+        check_year:
+          type: "int64"
+          example: 2024
+        area_name:
+          type: "string"
+          example: "廠區A"
+        process_no:
+          type: "string"
+          example: "A1"
+        process_code:
+          type: "int64"
+          example: 9999
+        equipment_no:
+          type: "string"
+          example: "AA1"
+        equipment_code:
+          type: "int64"
+          example: 88888
+        raw_materials_code:
+          type: "int64"
+          example: 445566
+        activity_data:
+          type: "float"
+          example: 33.3333333
+        activity_date:
+          type: "string"
+          example: "2022/05/23"
+security:
+  - Authorization: []
+responses:
+  200:
+    description: When a user successfully logs in
+
+  400:
+    description: Fails to login due to bad request data
+
+  401:
+    description: A user supplies incorrect credentials

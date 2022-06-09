@@ -1,60 +1,25 @@
-from flask import request
-from flask_restful import reqparse
+from flask_restful import reqparse, Resource
 from models.carbonnews import CarbonNewsModel
-
-from flask_restful_swagger_2 import Resource, swagger, Schema
+from flasgger import swag_from
 from werkzeug.datastructures import FileStorage
 import base64
 
-class BaseCarbonNewsModel(Schema):
-    type = 'object'
-    properties = {
-        'hashtag': {
-            'type': 'string',
-            'format': 'str',
-        }
-    }
-    required = ['hashtag']
-
 
 class FindCrabonNewsByHashTag(Resource):
-    @swagger.doc({
-        'tags': ['Carbon News'],
-        'description': 'Search Carbon News with hash-tag',
-        'parameters': [
-            {
-                'name': 'control_no',
-                'description': 'Control number',
-                'in': 'path',
-                'type': 'integer'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Control number',
-                'schema': BaseCarbonNewsModel,
-                'examples': {
-                    'application/json': {
-                        "control_no": "11880755",
-                        "check_year": 2022,
-                        "area_name": "5566",
-                        "process_no": "7788",
-                        "process_code": 7788,
-                        "equipment_no": "7788",
-                        "equipment_code": 445566,
-                        "raw_materials_code": 11880755,
-                        "activity_data": 15.9999999,
-                        "activity_date": "2022/05/19"
-                    }
-                }
-            }
-        }
-     })
+    @swag_from('../docs/carbonnews/findcrabonnewsbyhashtag.yml')
     def get(self, hashtag=None):
         carbon_news = CarbonNewsModel.find_by_hash_tag(hashtag)
         if carbon_news:
             return [x.json() for x in carbon_news]
         return {'message': 'carbon news with hash tag not found'}, 404
+
+class FindCrabonNewsByTitle(Resource):
+    @swag_from('../docs/carbonnews/findcrabonnewsbytitle.yaml')
+    def get(self, title=None):
+        carbon_news = CarbonNewsModel.find_by_name(title)
+        if carbon_news:
+            return [x.json() for x in carbon_news]
+        return {'message': 'carbon news with title not found'}, 404
 
 class CarbonNews(Resource):
     parser = reqparse.RequestParser()
@@ -73,75 +38,6 @@ class CarbonNews(Resource):
                         help="Every Carbon News needs a hash tag.")
     parser.add_argument('newsimage', type=FileStorage, location='files')
 
-    @swagger.doc({
-        'tags': ['Carbon News'],
-        'description': 'Search Carbon News with hash-tag',
-        'parameters': [
-            {
-                'name': 'control_no',
-                'description': 'Control number',
-                'in': 'path',
-                'type': 'integer'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Control number',
-                'schema': BaseCarbonNewsModel,
-                'examples': {
-                    'application/json': {
-                        "control_no": "11880755",
-                        "check_year": 2022,
-                        "area_name": "5566",
-                        "process_no": "7788",
-                        "process_code": 7788,
-                        "equipment_no": "7788",
-                        "equipment_code": 445566,
-                        "raw_materials_code": 11880755,
-                        "activity_data": 15.9999999,
-                        "activity_date": "2022/05/19"
-                    }
-                }
-            }
-        }
-     })
-    def get(self, title=None):
-        carbon_news = CarbonNewsModel.find_by_name(title)
-        if carbon_news:
-            return [x.json() for x in carbon_news]
-        return {'message': 'carbon news with title not found'}, 404
-
-    @swagger.doc({
-        'tags': ['Carbon News'],
-        'description': 'Adds a Carbon News',
-        'parameters': [
-            {
-                'name': 'control_no',
-                'description': 'Control number',
-                'in': 'path',
-                'type': 'integer',
-            }
-        ],
-        'responses': {
-            '201': {
-                'description': 'Created Rawmaterial',
-                'examples': {
-                    'application/json': {
-                        "check_year": 2024,
-                        "area_name": "廠區A",
-                        "process_no": "A1",
-                        "process_code": 9999,
-                        "equipment_no": "AA1",
-                        "equipment_code": 88888,
-                        "raw_materials_code": 445566,
-                        "activity_data": 33.3333333,
-                        "activity_date": "2022/05/23",
-                        "control_no_id": 2
-                    }
-                }
-            }
-        }
-    })
     def post(self):
         data = CarbonNews.parser.parse_args()
 
@@ -193,43 +89,5 @@ class CarbonNews(Resource):
 
 
 class CarbonNewslList(Resource):
-    @swagger.doc({
-        'tags': ['Carbon News'],
-        'description': 'Get all rawmaterials',
-        'responses': {
-            '200': {
-                'description': 'Control number',
-                'schema': BaseCarbonNewsModel,
-                # 'examples': {
-                #     'application/json': [
-                #         {
-                #             "control_no": "11880755",
-                #             "check_year": 2022,
-                #             "area_name": "5566",
-                #             "process_no": "7788",
-                #             "process_code": 7788,
-                #             "equipment_no": "7788",
-                #             "equipment_code": 445566,
-                #             "raw_materials_code": 11880755,
-                #             "activity_data": 15.9999999,
-                #             "activity_date": "2022/05/19"
-                #         },
-                #         {
-                #             "control_no": "5566",
-                #             "check_year": 2022,
-                #             "area_name": "5566",
-                #             "process_no": "7788",
-                #             "process_code": 7788,
-                #             "equipment_no": "7788",
-                #             "equipment_code": 445566,
-                #             "raw_materials_code": 11880755,
-                #             "activity_data": 15.9999999,
-                #             "activity_date": "2022/05/19"
-                #         }
-                #     ]
-                # }
-            }
-        }
-     })
     def get(self):
         return {'Carbon News List': [x.json() for x in CarbonNewsModel.query.all()]}

@@ -48,7 +48,7 @@ class RawmaterialModel(db.Model):
 
     @classmethod
     def find_by_name(cls, control_no):
-        return cls.query.filter_by(control_no=control_no).first()
+        return cls.query.filter_by(control_no=control_no).all()
 
     def save_to_db(self):
         db.session.add(self)

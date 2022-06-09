@@ -1,0 +1,18 @@
+Query an Carbon News by title
+---
+tags:
+  - Carbon News
+parameters:
+  - name: title
+    type: string
+    in: path
+    required: True
+responses:
+  200:
+    description: When a user successfully logs in
+
+  400:
+    description: Fails to login due to bad request data
+
+  401:
+    description: A user supplies incorrect credentials

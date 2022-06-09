@@ -12,19 +12,32 @@ template = {
         "termsOfService": "https://aspnex.com/",
         "version": "1.0"
     },
-    "basePath": "/",  # base bash for blueprint registration
+    "produces": [
+        "application/json",
+    ],
+    "basePath": "/api/v1",  # base bash for blueprint registration
     "schemes": [
         "http",
         "https"
     ],
+    "security": {
+        "Authorization": []
+    },
+    "securitySchemes": {
+        "bearerAuth": {
+            "bearerFormat": "JWT",
+            "scheme": "bearer",
+            "type": "http"
+        }
+    },
     "securityDefinitions": {
-        "Bearer": {
+        "Authorization": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header",
             "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
         }
-    },
+    }
 }
 
 swagger_config = {

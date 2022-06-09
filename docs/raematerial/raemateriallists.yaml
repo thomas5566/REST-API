@@ -1,0 +1,18 @@
+Query an Rawmaterial by control number
+---
+tags:
+  - Rawmaterial
+parameters:
+  - name: control_number
+    type: integer
+    in: path
+    required: True
+responses:
+  200:
+    description: When a user successfully logs in
+
+  400:
+    description: Fails to login due to bad request data
+
+  401:
+    description: A user supplies incorrect credentials

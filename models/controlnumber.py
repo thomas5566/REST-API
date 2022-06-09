@@ -15,6 +15,7 @@ class ControlNumberModel(db.Model):
 
     def json(self):
         return {
+            'id': self.id,
             'control_number': self.control_number,
             'rawmaterials': [rawmaterial.json() for rawmaterial in self.rawmaterials.all()]
             }

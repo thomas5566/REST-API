@@ -1,21 +1,28 @@
-from flask_restful import reqparse
+from flask_restful import reqparse, Resource
 from flask_jwt import jwt_required
 from models.rawmaterials import RawmaterialModel
+from models.controlnumber import ControlNumberModel
 
-from flask_restful_swagger_2 import Resource, swagger, Schema
+from flasgger import swag_from
+import json
+# from flask_restful_swagger_2 import Resource, swagger, Schema
 
-class BaseRawmaterialModel(Schema):
-    type = 'object'
-    properties = {
-        'control_no': {
-            'type': 'integer',
-            'format': 'int64',
-        }
-    }
-    required = ['control_no']
+# class BaseRawmaterialModel(Schema):
+#     type = 'object'
+#     properties = {
+#         'control_no': {
+#             'type': 'integer',
+#             'format': 'int64',
+#         }
+#     }
+#     required = ['control_no']
 
 class Rawmaterial(Resource):
     parser = reqparse.RequestParser()
+    parser.add_argument('control_no',
+                        type=int,
+                        required=True,
+                        help="Every Rawmaterial needs a control_no.")
     parser.add_argument('check_year',
                         type=int,
                         required=True,
@@ -52,95 +59,46 @@ class Rawmaterial(Resource):
                         type=str,
                         required=True,
                         help="Every Rawmaterial needs a activity date.")
-    parser.add_argument('control_no_id',
-                        type=int,
-                        required=True,
-                        help="Every item needs a control no id.")
+    # parser.add_argument('control_no_id',
+    #                     type=int,
+    #                     required=True,
+    #                     help="Every item needs a control no id.")
 
-    @swagger.doc({
-        'tags': ['Rawmaterial'],
-        'description': 'Returns a latest rawmaterial',
-        'parameters': [
-            {
-                'name': 'control_no',
-                'description': 'Control number',
-                'in': 'path',
-                'type': 'integer'
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': 'Control number',
-                'schema': BaseRawmaterialModel,
-                'examples': {
-                    'application/json': {
-                        "control_no": "11880755",
-                        "check_year": 2022,
-                        "area_name": "5566",
-                        "process_no": "7788",
-                        "process_code": 7788,
-                        "equipment_no": "7788",
-                        "equipment_code": 445566,
-                        "raw_materials_code": 11880755,
-                        "activity_data": 15.9999999,
-                        "activity_date": "2022/05/19"
-                    }
-                }
-            }
-        }
-     })
-    def get(self, control_no):
-        rawmaterial = RawmaterialModel.find_by_name(control_no)
-        if rawmaterial:
-            return rawmaterial.json()
-        return {'message': 'rawmaterial not found'}, 404
-
-    @swagger.doc({
-        'tags': ['Rawmaterial'],
-        'description': 'Adds a Rawmaterial',
-        'parameters': [            
-            {
-                'name': 'control_no',
-                'description': 'Control number',
-                'in': 'path',
-                'type': 'integer',
-            }
-        ],
-        'responses': {
-            '201': {
-                'description': 'Created Rawmaterial',
-                'examples': {
-                    'application/json': {
-                        "check_year": 2024,
-                        "area_name": "廠區A",
-                        "process_no": "A1",
-                        "process_code": 9999,
-                        "equipment_no": "AA1",
-                        "equipment_code": 88888,
-                        "raw_materials_code": 445566,
-                        "activity_data": 33.3333333,
-                        "activity_date": "2022/05/23",
-                        "control_no_id": 2
-                    }
-                }
-            }
-        }
-    })
     @jwt_required()
-    def post(self, control_no):
+    @swag_from('../docs/raematerial/raematerial.yaml')
+    def post(self):
         # if RawmaterialModel.find_by_name(control_no):
         #     return {'message': "An rawmaterial with control_no '{}' already exists.".format(control_no)}, 400
 
         data = Rawmaterial.parser.parse_args()
+        control_number = data["control_no"]
 
-        rawmaterial = RawmaterialModel(control_no, **data)
+        # 查詢ControlNumberModel是否已有存在的Control number
+        control_number_id = ControlNumberModel.find_by_name(str(control_number))
+        if control_number_id:
+            json_control_id = json.dumps(control_number_id.json())
+            resp = json.loads(json_control_id)
+            data["control_no_id"] = resp['id']
+        # 沒有就新增一個Control number
+        else:
+            controlno = ControlNumberModel(control_number)
+            try:
+                controlno.save_to_db()
+            except:
+                return {'message': 'An error occurred while creating the control number.'}, 500
+
+            new_json_control_id = json.dumps(controlno.json())
+            new_resp = json.loads(new_json_control_id)
+            data["control_no_id"] = new_resp['id']
+
+        rawmaterial = RawmaterialModel(**data)
 
         try:
             rawmaterial.save_to_db()
         except:
             return {"message": "An error occurred inserting the rawmaterial."}, 500
 
-        return {"message": "Inserting rawmaterial success!", 
+        return {"message": "Inserting rawmaterial success!",
                 "Rawmaterial": rawmaterial.json()}, 201
 
     def delete(self, control_no):
@@ -174,44 +132,11 @@ class Rawmaterial(Resource):
         return rawmaterial.json()
 
 
-class RawmaterialList(Resource):
-    @swagger.doc({
-        'tags': ['Rawmaterial'],
-        'description': 'Get all rawmaterials',        
-        'responses': {
-            '200': {
-                'description': 'Control number',
-                'schema': BaseRawmaterialModel,
-                'examples': {
-                    'application/json': [
-                        {
-                            "control_no": "11880755",
-                            "check_year": 2022,
-                            "area_name": "5566",
-                            "process_no": "7788",
-                            "process_code": 7788,
-                            "equipment_no": "7788",
-                            "equipment_code": 445566,
-                            "raw_materials_code": 11880755,
-                            "activity_data": 15.9999999,
-                            "activity_date": "2022/05/19"
-                        },
-                        {
-                            "control_no": "5566",
-                            "check_year": 2022,
-                            "area_name": "5566",
-                            "process_no": "7788",
-                            "process_code": 7788,
-                            "equipment_no": "7788",
-                            "equipment_code": 445566,
-                            "raw_materials_code": 11880755,
-                            "activity_data": 15.9999999,
-                            "activity_date": "2022/05/19"
-                        }
-                    ]
-                }
-            }
-        }
-     })
-    def get(self):
-        return {'Rwmaterials': [x.json() for x in RawmaterialModel.query.all()]}
+class RawmaterialList(Resource):    
+    @swag_from('../docs/raematerial/raemateriallists.yaml')
+    def get(self, control_number):
+        rawmateriallists = RawmaterialModel.find_by_name(control_number)
+        if rawmateriallists:
+            return {'Rawmaterials': [rawmaterial.json() for rawmaterial in rawmateriallists]}
+        return {'message': 'No Data'}, 404
+        # return {'Rwmaterials': [x.json() for x in RawmaterialModel.query.all()]}

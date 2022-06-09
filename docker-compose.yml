@@ -7,9 +7,9 @@ services:
     restart: always
     hostname: postgres
     expose: # 僅能在此 docker-compose 內的 container 們使用
-      - "5566"
+      - "5567"
     ports: # Ports: 能連到主機的這些 port 都能夠使用
-      - "5566:5432"
+      - "5567:5432"
     networks:
       - apinet
     environment:
@@ -63,6 +63,7 @@ services:
 
 networks:
   apinet:
+
 volumes:
   postgres-volume:
   pgadmin:
