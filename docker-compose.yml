@@ -42,8 +42,8 @@ services:
       context: .
       dockerfile: Dockerfile_nginx
     ports:
-      # 將local 8087 port 指向 container的 80 port
-      - "8087:80"
+      # 將local 80 port 指向 container的 80 port
+      - "80:80"
     networks:
       - apinet
 
