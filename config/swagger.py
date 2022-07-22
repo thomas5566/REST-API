@@ -15,10 +15,10 @@ template = {
     "produces": [
         "application/json",
     ],
-    "basePath": "/api/v1",  # base bash for blueprint registration
+    "basePath": "/production",  # base bash for blueprint registration
     "schemes": [
-        "http",
-        "https"
+        "https",
+        "http"
     ],
     "security": {
         "Authorization": []
@@ -27,7 +27,7 @@ template = {
         "bearerAuth": {
             "bearerFormat": "JWT",
             "scheme": "bearer",
-            "type": "http"
+            "type": "https"
         }
     },
     "securityDefinitions": {
